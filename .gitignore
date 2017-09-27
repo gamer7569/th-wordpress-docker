@@ -1,0 +1,6 @@
+/.env
+/phpunit.xml
+/data/
+/node_modules/
+/vendor/
+/.idea

@@ -1,0 +1,69 @@
+# WordPress docker
+#
+# Required dir structure:
+#
+#	project_root
+#	├── data
+#	│   ├── mysql       -> Persitent MySQL data
+#	│   └── wordpress   -> WordPress source code (optional if you want code completion in your IDE)
+#	├── themes
+#	├── plugins
+#	└── uploads
+
+version: "2"
+services:
+
+  web:
+    image: gamer7569/nginx
+    env_file: .env
+    container_name: ${PROJECT_ID}-web
+    ports:
+      - "80:80"
+    volumes:
+      - ${PROJECT_ROOT}/data/wordpress:/app/public
+      - ${PROJECT_ROOT}/plugins:/app/public/wp-content/plugins
+      - ${PROJECT_ROOT}/themes:/app/public/wp-content/themes
+      - ${PROJECT_ROOT}/uploads:/app/public/wp-content/uploads
+    links:
+      - php
+
+  php:
+    image: gamer7569/php
+    env_file: .env
+    container_name: ${PROJECT_ID}-php
+    ports:
+      - "9000:9000"
+    volumes:
+      - ${PROJECT_ROOT}/data/wordpress:/app/public
+      - ${PROJECT_ROOT}/plugins:/app/public/wp-content/plugins
+      - ${PROJECT_ROOT}/themes:/app/public/wp-content/themes
+      - ${PROJECT_ROOT}/uploads:/app/public/wp-content/uploads
+    links:
+      - db
+
+  db:
+    image: gamer7569/mysql
+    env_file: .env
+    container_name: ${PROJECT_ID}-db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ${PROJECT_ROOT}/data/mysql:/var/lib/mysql
+
+  livereload:
+    image: gamer7569/livereload
+    container_name: ${PROJECT_ID}-livereload
+    ports:
+      - "35729:35729"
+    volumes:
+      - ${PROJECT_ROOT}/data/wordpress:/app/public
+      - ${PROJECT_ROOT}/plugins:/app/public/wp-content/plugins
+      - ${PROJECT_ROOT}/themes:/app/public/wp-content/themes
+      - ${PROJECT_ROOT}/uploads:/app/public/wp-content/uploads
+
+  #mailhog:
+  #  image: mailhog/mailhog
+  #  container_name: ${PROJECT_ID}-mailhog
+  #  ports:
+  #    - "1025:1025"
+  #    - "8025:8025"
